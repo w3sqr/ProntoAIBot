@@ -9,7 +9,7 @@ from datetime import datetime
 from telegram import Update, BotCommand, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application, CommandHandler, MessageHandler, CallbackQueryHandler,
-    ConversationHandler, filters, ContextTypes
+    ConversationHandler, filters, ContextTypes, PreCheckoutQueryHandler
 )
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import pytz
@@ -674,8 +674,8 @@ class ProductivityBot:
         ))
         
         # Handle pre-checkout queries (required for Telegram Stars payments)
-        self.application.add_handler(MessageHandler(
-            filters.PRE_CHECKOUT_QUERY, self.settings_feature.handle_pre_checkout_query
+        self.application.add_handler(PreCheckoutQueryHandler(
+            self.settings_feature.handle_pre_checkout_query
         ))
         
         # Statistics callbacks
