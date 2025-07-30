@@ -2,6 +2,11 @@
 
 A comprehensive Telegram bot for productivity management with reminders, task management, habit tracking, note-taking, and AI assistance.
 
+<a href="https://t.me/ProntoAIBot" target="_blank">
+  <img width="50" height="50" alt="Logo" src="https://github.com/user-attachments/assets/7d9f7bf7-06d2-4292-b256-270ddeebbb8c" />
+</a>
+
+
 ## 🌟 Features
 
 ### 📝 Smart Reminders
