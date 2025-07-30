@@ -673,6 +673,11 @@ class ProductivityBot:
             filters.SUCCESSFUL_PAYMENT, self.settings_feature.handle_successful_payment
         ))
         
+        # Handle pre-checkout queries (required for Telegram Stars payments)
+        self.application.add_handler(MessageHandler(
+            filters.PRE_CHECKOUT_QUERY, self.settings_feature.handle_pre_checkout_query
+        ))
+        
         # Statistics callbacks
         self.application.add_handler(CallbackQueryHandler(
             self.statistics_feature.show_overview_stats, pattern="^stats_overview$"

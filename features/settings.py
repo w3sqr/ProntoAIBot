@@ -628,16 +628,9 @@ class SettingsFeature:
         # Extract star amount from callback data (e.g., "donate_star_50" -> 50)
         star_amount = int(query.data.split('_')[-1])
         
-        # Get provider token from config (secure)
-        provider_token = settings.payment_provider_token
-        if not provider_token:
-            await query.edit_message_text(
-                "❌ Payment system is not configured. Please contact the bot administrator.",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🔙 Back", callback_data="settings_donate")]
-                ])
-            )
-            return
+        # For Telegram Stars (digital goods), provider_token should be empty string
+        # Only physical goods require a provider token
+        provider_token = ""  # Empty string for digital goods (Stars)
         
         # Prepare invoice
         title = f"Support the Bot with {star_amount} Telegram Stars"
@@ -657,7 +650,7 @@ class SettingsFeature:
                 title=title,
                 description=description,
                 payload=payload,
-                provider_token=provider_token,
+                provider_token=provider_token,  # Empty string for digital goods
                 currency=currency,
                 prices=prices,
                 start_parameter=f"donate_star_{star_amount}"
@@ -673,6 +666,38 @@ class SettingsFeature:
 
     @with_user
     @error_handler
+    async def handle_pre_checkout_query(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle pre-checkout query for Telegram Stars payments"""
+        pre_checkout_query = update.pre_checkout_query
+        
+        # Log the pre-checkout query
+        user_id = pre_checkout_query.from_user.id
+        user_name = pre_checkout_query.from_user.first_name
+        payload = pre_checkout_query.invoice_payload
+        logger.info(f"Pre-checkout query from user {user_id} ({user_name}) for payload: {payload}")
+        
+        try:
+            # Always approve the pre-checkout query for Stars donations
+            # This is required within 10 seconds or the payment will fail
+            await context.bot.answer_pre_checkout_query(
+                pre_checkout_query_id=pre_checkout_query.id,
+                ok=True
+            )
+            logger.info(f"Pre-checkout query approved for user {user_id}")
+        except Exception as e:
+            logger.error(f"Error answering pre-checkout query: {e}")
+            # If we can't answer, try to answer with error
+            try:
+                await context.bot.answer_pre_checkout_query(
+                    pre_checkout_query_id=pre_checkout_query.id,
+                    ok=False,
+                    error_message="Payment processing error. Please try again."
+                )
+            except Exception as error_e:
+                logger.error(f"Error sending error response to pre-checkout query: {error_e}")
+
+    @with_user
+    @error_handler
     async def handle_successful_payment(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle successful payment completion"""
         # This is called when a user successfully completes a payment
@@ -681,12 +706,18 @@ class SettingsFeature:
         if successful_payment:
             # Extract star amount from payload (e.g., "donate_star_50" -> 50)
             payload = successful_payment.invoice_payload
-            star_amount = int(payload.split('_')[-1])
+            try:
+                star_amount = int(payload.split('_')[-1])
+            except (ValueError, IndexError):
+                # Fallback: use total amount from payment
+                star_amount = successful_payment.total_amount
+                logger.warning(f"Could not parse star amount from payload '{payload}', using total amount: {star_amount}")
             
             # Log the successful donation
             user_id = context.user_data.get('user_id')
             user_name = update.message.from_user.first_name
             logger.info(f"Successful donation: {star_amount} stars from user {user_id} ({user_name})")
+            logger.info(f"Payment details - Total amount: {successful_payment.total_amount}, Currency: {successful_payment.currency}")
             
             # Thank the user
             thank_you_message = (
