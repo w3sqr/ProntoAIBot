@@ -170,14 +170,15 @@ class AIAssistant:
                 "You help users with reminders, tasks, habits, and notes. "
                 "Be concise, friendly, and practical in your responses. "
                 "Focus on productivity and personal development advice. "
-                "If the user asks about creating something, guide them to use natural language commands."
+                "If the user asks about creating something, guide them to use natural language commands. "
+                "Respond in natural language format (not JSON)."
             )
             
             if user_context:
                 system_message += f"\n\nUser context: {user_context}"
             
-            # Call AI API with fallback
-            ai_response = await self._call_ai_api_with_fallback(system_message, user_query)
+            # Call AI API with fallback (no JSON needed for general conversation)
+            ai_response = await self._call_ai_api_with_fallback(system_message, user_query, use_json=False)
             
             # Store conversation in Redis for context
             await self._store_conversation(telegram_id, user_query, ai_response)
@@ -257,7 +258,7 @@ class AIAssistant:
                 "Example output: {\"title\": \"Call mom\", \"time\": \"tomorrow at 3pm\", \"description\": \"Call mom to check on her\"}"
             )
             
-            ai_response = await self._call_ai_api_with_fallback(system_message, text)
+            ai_response = await self._call_ai_api_with_fallback(system_message, text, use_json=True)
             
             # Clean the response to extract JSON
             cleaned_response = self._extract_json_from_response(ai_response)
@@ -335,7 +336,7 @@ class AIAssistant:
                 "Example output: {\"title\": \"Finish report\", \"description\": \"Complete the quarterly report\", \"priority\": \"high\", \"deadline\": \"by Friday\", \"project_name\": \"Work\"}"
             )
             
-            ai_response = await self._call_ai_api_with_fallback(system_message, text)
+            ai_response = await self._call_ai_api_with_fallback(system_message, text, use_json=True)
             
             # Clean the response to extract JSON
             cleaned_response = self._extract_json_from_response(ai_response)
@@ -416,7 +417,7 @@ class AIAssistant:
                 "Example output: {\"name\": \"Read books\", \"description\": \"Read for 30 minutes daily\", \"frequency\": \"daily\", \"target_value\": 30, \"unit\": \"minutes\"}"
             )
             
-            ai_response = await self._call_ai_api_with_fallback(system_message, text)
+            ai_response = await self._call_ai_api_with_fallback(system_message, text, use_json=True)
             
             # Clean the response to extract JSON
             cleaned_response = self._extract_json_from_response(ai_response)
@@ -487,7 +488,7 @@ class AIAssistant:
                 "Example output: {\"title\": \"Meeting notes\", \"content\": \"Important discussion about project timeline\"}"
             )
             
-            ai_response = await self._call_ai_api_with_fallback(system_message, text)
+            ai_response = await self._call_ai_api_with_fallback(system_message, text, use_json=True)
             
             # Clean the response to extract JSON
             cleaned_response = self._extract_json_from_response(ai_response)
@@ -597,7 +598,7 @@ class AIAssistant:
                 f"Current tasks: {tasks_context}\nCurrent habits: {habits_context}"
             )
             
-            ai_response = await self._call_ai_api_with_fallback(system_message, user_message)
+            ai_response = await self._call_ai_api_with_fallback(system_message, user_message, use_json=False)
             
             # Clean up the AI response
             cleaned_response = self._clean_ai_response(ai_response)
@@ -678,7 +679,7 @@ class AIAssistant:
                 "Please provide insights and recommendations."
             )
             
-            insights = await self._call_ai_api_with_fallback(system_message, user_message)
+            insights = await self._call_ai_api_with_fallback(system_message, user_message, use_json=False)
             
             # Clean up the AI response
             cleaned_insights = self._clean_ai_response(insights)
@@ -761,7 +762,7 @@ class AIAssistant:
                 "Please suggest new habits that would create a balanced routine."
             )
             
-            suggestions = await self._call_ai_api_with_fallback(system_message, user_message)
+            suggestions = await self._call_ai_api_with_fallback(system_message, user_message, use_json=False)
             
             # Clean up the AI response
             cleaned_suggestions = self._clean_ai_response(suggestions)
@@ -815,7 +816,7 @@ class AIAssistant:
                 "highlighting key ideas, action items, and important information."
             )
             user_message = "\n---\n".join(note_texts)
-            ai_response = await self._call_ai_api_with_fallback(system_message, user_message)
+            ai_response = await self._call_ai_api_with_fallback(system_message, user_message, use_json=False)
             
             # Clean up the AI response
             cleaned_response = self._clean_ai_response(ai_response)
@@ -969,23 +970,30 @@ class AIAssistant:
         
         return '\n'.join(cleaned_lines)
     
-    async def _call_ai_api_with_fallback(self, system_message: str, user_query: str) -> str:
+    async def _call_ai_api_with_fallback(self, system_message: str, user_query: str, use_json: bool = False) -> str:
         """Call AI API with fallback: OpenAI first, then DeepSeek if OpenAI fails"""
         
         # Try OpenAI first
         if self.openai_enabled:
             try:
                 logger.info("Attempting OpenAI API call...")
-                response = await self.openai_client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
+                
+                # Prepare request parameters
+                request_params = {
+                    "model": "gpt-3.5-turbo",
+                    "messages": [
                         {"role": "system", "content": system_message},
                         {"role": "user", "content": user_query}
                     ],
-                    max_tokens=1000,  # Increased for better JSON responses
-                    temperature=0.3,  # Lower temperature for more consistent JSON
-                    response_format={"type": "json_object"}  # Force JSON response
-                )
+                    "max_tokens": 1000,
+                    "temperature": 0.3
+                }
+                
+                # Only add response_format if JSON is requested
+                if use_json:
+                    request_params["response_format"] = {"type": "json_object"}
+                
+                response = await self.openai_client.chat.completions.create(**request_params)
                 ai_response = response.choices[0].message.content.strip()
                 logger.info("OpenAI API call successful")
                 return ai_response
@@ -1004,6 +1012,22 @@ class AIAssistant:
         if self.deepseek_enabled:
             try:
                 logger.info("Attempting DeepSeek API call...")
+                
+                # Prepare request parameters
+                request_data = {
+                    "model": "deepseek-chat",
+                    "messages": [
+                        {"role": "system", "content": system_message},
+                        {"role": "user", "content": user_query}
+                    ],
+                    "max_tokens": 1000,
+                    "temperature": 0.3
+                }
+                
+                # Only add response_format if JSON is requested
+                if use_json:
+                    request_data["response_format"] = {"type": "json_object"}
+                
                 async with httpx.AsyncClient() as client:
                     response = await client.post(
                         f"{self.deepseek_base_url}/chat/completions",
@@ -1011,16 +1035,7 @@ class AIAssistant:
                             "Authorization": f"Bearer {self.deepseek_api_key}",
                             "Content-Type": "application/json"
                         },
-                        json={
-                            "model": "deepseek-chat",
-                            "messages": [
-                                {"role": "system", "content": system_message},
-                                {"role": "user", "content": user_query}
-                            ],
-                            "max_tokens": 1000,  # Increased for better JSON responses
-                            "temperature": 0.3,  # Lower temperature for more consistent JSON
-                            "response_format": {"type": "json_object"}  # Force JSON response
-                        },
+                        json=request_data,
                         timeout=30.0
                     )
                     
