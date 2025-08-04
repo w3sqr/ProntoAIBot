@@ -19,12 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved database migration system
 - Enhanced notification preferences
 - Better code organization and modularity
+- Update the Contact
 
 ### Fixed
 - SQLAlchemy session management issues
 - Notification system reliability
 - Timezone handling bugs
 - Database connection stability
+- Fix Telegram Star payment  
+- Fix AI Response Json Read 
 
 ## [1.0.0] - 2024-01-XX
 

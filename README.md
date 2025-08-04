@@ -78,7 +78,7 @@ A comprehensive Telegram bot for productivity management with reminders, task ma
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/thesurfhawk/ProntoAIBot.git
+git clone https://github.com/w3sqr/ProntoAIBot.git
 cd ProntoAIBot
 ```
 
@@ -305,6 +305,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🆘 Support
 
+- 🔗 Website: https://prontoai.xyz
 - 📧 Email: sqr435@gmail.com
 - 💬 Telegram: @prontoAI
 - 🐛 Issues: GitHub Issues

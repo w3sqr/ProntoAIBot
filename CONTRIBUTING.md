@@ -14,7 +14,7 @@ Thank you for your interest in contributing to ProntoAI Bot! This document provi
 
 1. **Fork and Clone**
    ```bash
-   git clone https://github.com/thesurfhawk/ProntoAIBot.git
+   git clone https://github.com/w3sqr/ProntoAIBot.git
    cd ProntoAIBot
    ```
 

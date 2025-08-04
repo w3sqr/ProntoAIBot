@@ -14,7 +14,7 @@ setup(
     description="A comprehensive Telegram bot for productivity management with AI assistance",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/thesurfhawk/ProntoAIBot",
+    url="https://github.com/w3sqr/ProntoAIBot",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
