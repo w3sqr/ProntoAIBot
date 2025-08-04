@@ -277,10 +277,10 @@ class SettingsFeature:
         await query.edit_message_text(
             "📞 *Contact Information*\n\n"
             "Need help or have suggestions?\n\n"
-           # "📧 Email: support@productivitybot.com\n"
-            "💬 Telegram: @ProntoAI\n"
-           # "🌐 Website: https://productivitybot.com\n"
-            "📱 GitHub: https://github.com/thesurfhawk/prontoaibot\n\n"
+           # "📧 Email: contact@prontoai.xyz\n"
+            "💬 Telegram: @ProntoAITalk\n"
+            "🌐 Website: https://prontoai.xyz\n"
+            #"📱 GitHub: https://github.com/w3sqr/prontoaibot\n\n"
             "We'd love to hear from you!",
             parse_mode='Markdown',
             reply_markup=InlineKeyboardMarkup([
