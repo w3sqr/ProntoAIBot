@@ -294,7 +294,7 @@ class SettingsFeature:
     async def show_donate_info(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         donate_keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("⭐ Give me Stars", callback_data="donate_stars_menu")],
-            [InlineKeyboardButton("☕ Buy me a Coffee", url="https://coff.ee/thesurfhawk")],
+            [InlineKeyboardButton("☕ Buy me a Coffee", url="https://coff.ee/w3sqr")],
             [InlineKeyboardButton("🔙 Back to Settings", callback_data="settings_menu")],
             [InlineKeyboardButton("🏠 Main Menu", callback_data="back_to_main")]
         ])
