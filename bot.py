@@ -50,13 +50,11 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
             self.send_response(404)
             self.end_headers()
     
-    def do_POST(self):
+    def do_HEAD(self):
         if self.path == '/health-status' or self.path == '/':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            response = json.dumps({"status": "ok"})
-            self.wfile.write(response.encode())
         else:
             self.send_response(404)
             self.end_headers()
