@@ -19,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved database migration system
 - Enhanced notification preferences
 - Better code organization and modularity
-- Update the Contact
 
 ### Fixed
 - SQLAlchemy session management issues
@@ -58,3 +57,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive error handling and logging
 - Modular architecture for easy maintenance
 - Production-ready deployment configuration 
+
+## [1.1.0] - 2025-08-XX
+
+### Changed
+- Updated to python-telegram-bot 22.3
+- Updated openai v1.98.0
+- Updatad httpx>=0.27,<0.29
+- Updated Contact
+
+### ADD
+- Add aiohttp in requirements
+- Add HealthCheck Endpoint Status
+
+### Technical
+- Fix conflict Port webhook & Healthcheck endpoint
