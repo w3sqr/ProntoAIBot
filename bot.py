@@ -5,6 +5,9 @@ Features: Reminders, Tasks, Habits, Notes, AI Assistant
 """
 
 import asyncio
+import json
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime
 from telegram import Update, BotCommand, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -34,6 +37,38 @@ from features.notifications import NotificationService
 # Global bot instance for scheduler access
 bot_instance = None
 notification_service_instance = None
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/health-status' or self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response = json.dumps({"status": "ok"})
+            self.wfile.write(response.encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def do_POST(self):
+        if self.path == '/health-status' or self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response = json.dumps({"status": "ok"})
+            self.wfile.write(response.encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def log_message(self, format, *args):
+        # Suppress logging for cleaner output
+        pass
+
+def start_health_server():
+    """Start a simple HTTP health server on port 8001"""
+    server = HTTPServer(('0.0.0.0', 8001), HealthCheckHandler)
+    server.serve_forever()
 
 class ProductivityBot:
     def __init__(self):
@@ -882,7 +917,7 @@ class ProductivityBot:
         try:
             self.logger.info("Starting Productivity Bot...")
             if settings.webhook_url:
-                # Webhook mode
+                # Webhook mode - bot runs on port 8000
                 self.application.run_webhook(
                     listen="0.0.0.0",
                     port=8000,
@@ -905,6 +940,11 @@ class ProductivityBot:
 
 def main():
     global bot_instance
+    
+    # Start health server in a separate thread on port 8001
+    health_thread = threading.Thread(target=start_health_server, daemon=True)
+    health_thread.start()
+    
     bot = ProductivityBot()
     bot.setup()
     bot_instance = bot
