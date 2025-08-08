@@ -21,7 +21,7 @@ services:
     volumes:
       - ./logs:/app/logs
     ports:
-      - "8000:8000"
+      - "8002:8002"
 
   db:
     image: postgres:15-alpine

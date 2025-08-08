@@ -915,10 +915,10 @@ class ProductivityBot:
         try:
             self.logger.info("Starting Productivity Bot...")
             if settings.webhook_url:
-                # Webhook mode - bot runs on port 8000
+                # Webhook mode - bot runs on port 8002
                 self.application.run_webhook(
                     listen="0.0.0.0",
-                    port=8000,
+                    port=8002,
                     webhook_url=settings.webhook_url,
                     secret_token=settings.webhook_secret
                 )
