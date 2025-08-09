@@ -10,7 +10,7 @@ setup(
     name="pronto-ai-bot",
     version="1.0.0",
     author="ProntoAI Team",
-    author_email="sqr435@gmail.com",
+    author_email="hello@prontoai.xyz",
     description="A comprehensive Telegram bot for productivity management with AI assistance",
     long_description=long_description,
     long_description_content_type="text/markdown",

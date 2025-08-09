@@ -306,7 +306,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🆘 Support
 
 - 🔗 Website: https://prontoai.xyz
-- 📧 Email: sqr435@gmail.com
+- 📧 Email: hello@prontoai.xyz
 - 💬 Telegram: @prontoAI
 - 🐛 Issues: GitHub Issues
 - 📖 Documentation: Wiki
