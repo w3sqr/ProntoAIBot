@@ -15,7 +15,12 @@ class Settings(BaseSettings):
     webhook_secret: Optional[str] = Field(None, env="WEBHOOK_SECRET")
     log_level: str = Field("INFO", env="LOG_LEVEL")
     environment: str = Field("development", env="ENVIRONMENT")
-    
+
+    # Channel membership settings
+    required_channel: Optional[str] = Field(None, env="REQUIRED_CHANNEL")
+    channel_url: Optional[str] = Field(None, env="CHANNEL_URL")
+    enable_channel_check: bool = Field(False, env="ENABLE_CHANNEL_CHECK")
+
     class Config:
         env_file = ".env"
         case_sensitive = False

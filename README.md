@@ -48,6 +48,12 @@ A comprehensive Telegram bot for productivity management with reminders, task ma
 ### 📊 Analytics & Statistics
 - Comprehensive productivity metrics
 - Weekly and monthly reports
+
+### 🔒 Channel Membership (Optional)
+- Require users to join a specific channel before using the bot
+- Customizable channel prompts and join buttons
+- Automatic membership verification
+- Easy configuration via environment variables
 - Habit performance tracking
 - Task completion rates
 - Progress visualization
@@ -129,6 +135,11 @@ OPENAI_API_KEY=your_openai_api_key_here
 ADMIN_USER_ID=123456789
 LOG_LEVEL=INFO
 ENVIRONMENT=production
+
+# Channel Membership (Optional)
+ENABLE_CHANNEL_CHECK=true
+REQUIRED_CHANNEL=@yourchannel
+CHANNEL_URL=https://t.me/yourchannel
 ```
 
 ## 🏗️ Architecture
@@ -302,14 +313,6 @@ volumes:
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-- 🔗 Website: https://prontoai.xyz
-- 📧 Email: hello@prontoai.xyz
-- 💬 Telegram: @prontoAI
-- 🐛 Issues: GitHub Issues
-- 📖 Documentation: Wiki
 
 ## 🙏 Acknowledgments
 
