@@ -123,73 +123,75 @@ class ProductivityBot:
     def setup_handlers(self):
         """Setup all command and callback handlers"""
 
+
+
         # Basic commands
         self.application.add_handler(CommandHandler("start", self.start_command))
         self.application.add_handler(CommandHandler("help", self.help_command))
         self.application.add_handler(CommandHandler("menu", self.menu_command))
 
-        # Main menu handlers (protected with channel membership check)
+        # Main menu handlers - protected with membership check
         self.application.add_handler(MessageHandler(
-            filters.Regex("^📝 Reminders$"), self.protected_reminders_menu
+            filters.Regex("^📝 Reminders$"), self.require_channel_membership(self.reminder_feature.show_reminders_menu)
         ))
         self.application.add_handler(MessageHandler(
-            filters.Regex("^✅ Tasks$"), self.protected_tasks_menu
+            filters.Regex("^✅ Tasks$"), self.require_channel_membership(self.task_feature.show_tasks_menu)
         ))
         self.application.add_handler(MessageHandler(
-            filters.Regex("^🎯 Habits$"), self.protected_habits_menu
+            filters.Regex("^🎯 Habits$"), self.require_channel_membership(self.habit_feature.show_habits_menu)
         ))
         self.application.add_handler(MessageHandler(
-            filters.Regex("^📋 Notes$"), self.protected_notes_menu
+            filters.Regex("^📋 Notes$"), self.require_channel_membership(self.note_feature.show_notes_menu)
         ))
         self.application.add_handler(MessageHandler(
-            filters.Regex("^📊 Statistics$"), self.protected_statistics_menu
+            filters.Regex("^📊 Statistics$"), self.require_channel_membership(self.statistics_feature.show_statistics_menu)
         ))
         self.application.add_handler(MessageHandler(
-            filters.Regex("^⚙️ Settings$"), self.protected_settings_menu
+            filters.Regex("^⚙️ Settings$"), self.require_channel_membership(self.settings_feature.show_settings_menu)
         ))
         self.application.add_handler(MessageHandler(
-            filters.Regex("^🤖 AI Assistant$"), self.protected_ai_menu
+            filters.Regex("^🤖 AI Assistant$"), self.require_channel_membership(self.ai_assistant.show_ai_menu)
         ))
         self.application.add_handler(MessageHandler(
             filters.Regex("^ℹ️ Help$"), self.help_command
         ))
         self.application.add_handler(MessageHandler(
-            filters.Regex("^💝 Donate$"), self.protected_donate_menu
+            filters.Regex("^💝 Donate$"), self.require_channel_membership(self.settings_feature.show_donate_info)
         ))
 
         # Reminder conversation handler
         reminder_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.reminder_feature.start_add_reminder,
+                self.require_channel_membership(self.reminder_feature.start_add_reminder),
                 pattern="^reminder_add$"
             )],
             states={
                 self.reminder_feature.REMINDER_TITLE: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.reminder_feature.get_reminder_title
+                    self.require_channel_membership(self.reminder_feature.get_reminder_title)
                 )],
                 self.reminder_feature.REMINDER_TIME: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.reminder_feature.get_reminder_time
+                    self.require_channel_membership(self.reminder_feature.get_reminder_time)
                 )],
                 self.reminder_feature.REMINDER_DESCRIPTION: [
-                    MessageHandler(filters.Regex('^/skip$'), self.reminder_feature.get_reminder_description),
-                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.reminder_feature.get_reminder_description)
+                    MessageHandler(filters.Regex('^/skip$'), self.require_channel_membership(self.reminder_feature.get_reminder_description)),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.require_channel_membership(self.reminder_feature.get_reminder_description))
                 ],
                 self.reminder_feature.REMINDER_EDIT_FIELD: [CallbackQueryHandler(
-                    self.reminder_feature.edit_field_choice
+                    self.require_channel_membership(self.reminder_feature.edit_field_choice)
                 )],
                 self.reminder_feature.REMINDER_EDIT_TITLE: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.reminder_feature.edit_reminder_title
+                    self.require_channel_membership(self.reminder_feature.edit_reminder_title)
                 )],
                 self.reminder_feature.REMINDER_EDIT_TIME: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.reminder_feature.edit_reminder_time
+                    self.require_channel_membership(self.reminder_feature.edit_reminder_time)
                 )],
                 self.reminder_feature.REMINDER_EDIT_DESCRIPTION: [
-                    MessageHandler(filters.Regex('^/skip$'), self.reminder_feature.edit_reminder_description),
-                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.reminder_feature.edit_reminder_description)
+                    MessageHandler(filters.Regex('^/skip$'), self.require_channel_membership(self.reminder_feature.edit_reminder_description)),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.require_channel_membership(self.reminder_feature.edit_reminder_description))
                 ],
             },
             fallbacks=[CommandHandler("cancel", self.reminder_feature.cancel_conversation)]
@@ -199,23 +201,23 @@ class ProductivityBot:
         # Edit reminder conversation handler
         edit_reminder_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.reminder_feature.edit_reminder, pattern="^reminder_edit_"
+                self.require_channel_membership(self.reminder_feature.edit_reminder), pattern="^reminder_edit_"
             )],
             states={
                 self.reminder_feature.REMINDER_EDIT_FIELD: [CallbackQueryHandler(
-                    self.reminder_feature.edit_field_choice
+                    self.require_channel_membership(self.reminder_feature.edit_field_choice)
                 )],
                 self.reminder_feature.REMINDER_EDIT_TITLE: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.reminder_feature.edit_reminder_title
+                    self.require_channel_membership(self.reminder_feature.edit_reminder_title)
                 )],
                 self.reminder_feature.REMINDER_EDIT_TIME: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.reminder_feature.edit_reminder_time
+                    self.require_channel_membership(self.reminder_feature.edit_reminder_time)
                 )],
                 self.reminder_feature.REMINDER_EDIT_DESCRIPTION: [
-                    MessageHandler(filters.Regex('^/skip$'), self.reminder_feature.edit_reminder_description),
-                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.reminder_feature.edit_reminder_description)
+                    MessageHandler(filters.Regex('^/skip$'), self.require_channel_membership(self.reminder_feature.edit_reminder_description)),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.require_channel_membership(self.reminder_feature.edit_reminder_description))
                 ],
             },
             fallbacks=[CommandHandler("cancel", self.reminder_feature.cancel_conversation)]
@@ -225,29 +227,29 @@ class ProductivityBot:
         # Task conversation handler
         task_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.task_feature.start_add_task,
+                self.require_channel_membership(self.task_feature.start_add_task),
                 pattern="^task_add$"
             )],
             states={
                 self.task_feature.TASK_TITLE: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.task_feature.get_task_title
+                    self.require_channel_membership(self.task_feature.get_task_title)
                 )],
                 self.task_feature.TASK_DESCRIPTION: [
-                    MessageHandler(filters.Regex('^/skip$'), self.task_feature.get_task_description),
-                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.task_feature.get_task_description)
+                    MessageHandler(filters.Regex('^/skip$'), self.require_channel_membership(self.task_feature.get_task_description)),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.require_channel_membership(self.task_feature.get_task_description))
                 ],
                 self.task_feature.TASK_PRIORITY: [CallbackQueryHandler(
-                    self.task_feature.get_task_priority,
+                    self.require_channel_membership(self.task_feature.get_task_priority),
                     pattern="^priority_"
                 )],
                 self.task_feature.TASK_DUE_DATE: [
-                    MessageHandler(filters.Regex('^/skip$'), self.task_feature.get_task_due_date),
-                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.task_feature.get_task_due_date)
+                    MessageHandler(filters.Regex('^/skip$'), self.require_channel_membership(self.task_feature.get_task_due_date)),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.require_channel_membership(self.task_feature.get_task_due_date))
                 ],
                 self.task_feature.TASK_PROJECT: [
-                    MessageHandler(filters.Regex('^/skip$'), self.task_feature.get_task_project),
-                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.task_feature.get_task_project)
+                    MessageHandler(filters.Regex('^/skip$'), self.require_channel_membership(self.task_feature.get_task_project)),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.require_channel_membership(self.task_feature.get_task_project))
                 ]
             },
             fallbacks=[CommandHandler("cancel", self.task_feature.cancel_conversation)]
@@ -257,13 +259,13 @@ class ProductivityBot:
         # Project editing conversation handler
         project_edit_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.task_feature.edit_project,
+                self.require_channel_membership(self.task_feature.edit_project),
                 pattern="^project_edit_"
             )],
             states={
                 self.task_feature.EDIT_PROJECT_NAME: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.task_feature.get_new_project_name
+                    self.require_channel_membership(self.task_feature.get_new_project_name)
                 )]
             },
             fallbacks=[CommandHandler("cancel", self.task_feature.cancel_conversation)]
@@ -273,29 +275,29 @@ class ProductivityBot:
         # Habit conversation handler
         habit_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.habit_feature.start_add_habit,
+                self.require_channel_membership(self.habit_feature.start_add_habit),
                 pattern="^habit_add$"
             )],
             states={
                 self.habit_feature.HABIT_NAME: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.habit_feature.get_habit_name
+                    self.require_channel_membership(self.habit_feature.get_habit_name)
                 )],
                 self.habit_feature.HABIT_DESCRIPTION: [
-                    MessageHandler(filters.Regex('^/skip$'), self.habit_feature.get_habit_description),
-                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.habit_feature.get_habit_description)
+                    MessageHandler(filters.Regex('^/skip$'), self.require_channel_membership(self.habit_feature.get_habit_description)),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.require_channel_membership(self.habit_feature.get_habit_description))
                 ],
                 self.habit_feature.HABIT_FREQUENCY: [CallbackQueryHandler(
-                    self.habit_feature.get_habit_frequency,
+                    self.require_channel_membership(self.habit_feature.get_habit_frequency),
                     pattern="^freq_"
                 )],
                 self.habit_feature.HABIT_TARGET: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.habit_feature.get_habit_target
+                    self.require_channel_membership(self.habit_feature.get_habit_target)
                 )],
                 self.habit_feature.HABIT_UNIT: [
-                    MessageHandler(filters.Regex('^/skip$'), self.habit_feature.get_habit_unit),
-                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.habit_feature.get_habit_unit)
+                    MessageHandler(filters.Regex('^/skip$'), self.require_channel_membership(self.habit_feature.get_habit_unit)),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.require_channel_membership(self.habit_feature.get_habit_unit))
                 ]
             },
             fallbacks=[CommandHandler("cancel", self.habit_feature.cancel_conversation)]
@@ -304,13 +306,13 @@ class ProductivityBot:
         # Habit edit conversation handler
         habit_edit_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.habit_feature.edit_habit,
+                self.require_channel_membership(self.habit_feature.edit_habit),
                 pattern="^habit_edit_"
             )],
             states={
                 self.habit_feature.EDIT_HABIT_NAME: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.habit_feature.get_new_habit_name
+                    self.require_channel_membership(self.habit_feature.get_new_habit_name)
                 )]
             },
             fallbacks=[CommandHandler("cancel", self.habit_feature.cancel_conversation)]
@@ -320,13 +322,13 @@ class ProductivityBot:
         # Habit log update conversation handler
         habit_log_update_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.habit_feature.custom_update_habit_log,
+                self.require_channel_membership(self.habit_feature.custom_update_habit_log),
                 pattern="^custom_update_"
             )],
             states={
                 self.habit_feature.CUSTOM_UPDATE_VALUE: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.habit_feature.get_custom_update_value
+                    self.require_channel_membership(self.habit_feature.get_custom_update_value)
                 )]
             },
             fallbacks=[CommandHandler("cancel", self.habit_feature.cancel_conversation)]
@@ -341,25 +343,25 @@ class ProductivityBot:
         # Note conversation handler
         note_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.note_feature.start_add_note,
+                self.require_channel_membership(self.note_feature.start_add_note),
                 pattern="^note_add$"
             )],
             states={
                 self.note_feature.NOTE_TITLE: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.note_feature.get_note_title
+                    self.require_channel_membership(self.note_feature.get_note_title)
                 )],
                 self.note_feature.NOTE_CONTENT: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.note_feature.get_note_content
+                    self.require_channel_membership(self.note_feature.get_note_content)
                 )],
                 self.note_feature.NOTE_CATEGORY: [
-                    MessageHandler(filters.Regex('^/skip$'), self.note_feature.get_note_category),
-                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.note_feature.get_note_category)
+                    MessageHandler(filters.Regex('^/skip$'), self.require_channel_membership(self.note_feature.get_note_category)),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.require_channel_membership(self.note_feature.get_note_category))
                 ],
                 self.note_feature.NOTE_TAGS: [
-                    MessageHandler(filters.Regex('^/skip$'), self.note_feature.get_note_tags),
-                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.note_feature.get_note_tags)
+                    MessageHandler(filters.Regex('^/skip$'), self.require_channel_membership(self.note_feature.get_note_tags)),
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.require_channel_membership(self.note_feature.get_note_tags))
                 ]
             },
             fallbacks=[CommandHandler("cancel", self.note_feature.cancel_conversation)]
@@ -369,13 +371,13 @@ class ProductivityBot:
         # Note search conversation handler
         note_search_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.note_feature.start_search_notes,
+                self.require_channel_membership(self.note_feature.start_search_notes),
                 pattern="^note_search$"
             )],
             states={
                 self.note_feature.SEARCH_QUERY: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.note_feature.search_notes
+                    self.require_channel_membership(self.note_feature.search_notes)
                 )]
             },
             fallbacks=[CommandHandler("cancel", self.note_feature.cancel_conversation)]
@@ -385,13 +387,13 @@ class ProductivityBot:
         # Note edit title conversation handler
         note_edit_title_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.note_feature.start_edit_title,
+                self.require_channel_membership(self.note_feature.start_edit_title),
                 pattern="^note_edit_title_"
             )],
             states={
                 self.note_feature.EDIT_TITLE: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.note_feature.save_edit_title
+                    self.require_channel_membership(self.note_feature.save_edit_title)
                 )]
             },
             fallbacks=[CommandHandler("cancel", self.note_feature.cancel_conversation)]
@@ -401,13 +403,13 @@ class ProductivityBot:
         # Note edit content conversation handler
         note_edit_content_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.note_feature.start_edit_content,
+                self.require_channel_membership(self.note_feature.start_edit_content),
                 pattern="^note_edit_content_"
             )],
             states={
                 self.note_feature.EDIT_CONTENT: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.note_feature.save_edit_content
+                    self.require_channel_membership(self.note_feature.save_edit_content)
                 )]
             },
             fallbacks=[CommandHandler("cancel", self.note_feature.cancel_conversation)]
@@ -417,13 +419,13 @@ class ProductivityBot:
         # Note edit category conversation handler
         note_edit_category_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.note_feature.start_edit_category,
+                self.require_channel_membership(self.note_feature.start_edit_category),
                 pattern="^note_edit_category_"
             )],
             states={
                 self.note_feature.EDIT_CATEGORY: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.note_feature.save_edit_category
+                    self.require_channel_membership(self.note_feature.save_edit_category)
                 )]
             },
             fallbacks=[CommandHandler("cancel", self.note_feature.cancel_conversation)]
@@ -433,13 +435,13 @@ class ProductivityBot:
         # Note edit tags conversation handler
         note_edit_tags_conv_handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(
-                self.note_feature.start_edit_tags,
+                self.require_channel_membership(self.note_feature.start_edit_tags),
                 pattern="^note_edit_tags_"
             )],
             states={
                 self.note_feature.EDIT_TAGS: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.note_feature.save_edit_tags
+                    self.require_channel_membership(self.note_feature.save_edit_tags)
                 )]
             },
             fallbacks=[CommandHandler("cancel", self.note_feature.cancel_conversation)]
@@ -450,14 +452,14 @@ class ProductivityBot:
         ai_conv_handler = ConversationHandler(
             entry_points=[
                 CallbackQueryHandler(
-                    self.ai_assistant.start_ai_chat,
+                    self.require_channel_membership(self.ai_assistant.start_ai_chat),
                     pattern="^ai_chat$"
                 )
             ],
             states={
                 self.ai_assistant.AI_QUERY: [MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    self.ai_assistant.handle_ai_query
+                    self.require_channel_membership(self.ai_assistant.handle_ai_query)
                 )]
             },
             fallbacks=[CommandHandler("cancel", self.ai_assistant.cancel_conversation)]
@@ -503,10 +505,10 @@ class ProductivityBot:
 
         # Navigation callbacks
         self.application.add_handler(CallbackQueryHandler(
-            self.show_main_menu, pattern="^back_to_main$"
+            self.require_channel_membership(self.show_main_menu), pattern="^back_to_main$"
         ))
 
-        # Channel membership check handler
+        # Channel membership check handler - EXEMPT from membership check
         self.application.add_handler(CallbackQueryHandler(
             self.handle_membership_check, pattern="^check_membership$"
         ))
@@ -526,173 +528,174 @@ class ProductivityBot:
 
         # Reminder callbacks
         self.application.add_handler(CallbackQueryHandler(
-            self.reminder_feature.show_reminders_menu, pattern="^reminders_menu$"
+            self.require_channel_membership(self.reminder_feature.show_reminders_menu), pattern="^reminders_menu$"
+        ))
+        # Reminder callbacks - protected
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.reminder_feature.list_reminders), pattern="^reminder_list$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.reminder_feature.list_reminders, pattern="^reminder_list$"
+            self.require_channel_membership(self.reminder_feature.edit_reminder), pattern="^reminder_edit_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.reminder_feature.edit_reminder, pattern="^reminder_edit_"
+            self.require_channel_membership(self.reminder_feature.snooze_reminder), pattern="^reminder_snooze_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.reminder_feature.snooze_reminder, pattern="^reminder_snooze_"
+            self.require_channel_membership(self.reminder_feature.mark_reminder_done), pattern="^reminder_done_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.reminder_feature.mark_reminder_done, pattern="^reminder_done_"
+            self.require_channel_membership(self.reminder_feature.delete_reminder), pattern="^reminder_delete_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.reminder_feature.delete_reminder, pattern="^reminder_delete_"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.reminder_feature.start_add_reminder, pattern="^reminder_add_continue$"
-        ))
-
-        # Task callbacks
-        self.application.add_handler(CallbackQueryHandler(
-            self.task_feature.show_tasks_menu, pattern="^tasks_menu$"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.task_feature.list_tasks, pattern="^task_list$"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.task_feature.complete_task, pattern="^task_complete_"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.task_feature.show_projects, pattern="^task_projects$"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.task_feature.delete_task, pattern="^task_delete_"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.task_feature.view_project_tasks, pattern="^project_view_"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.task_feature.edit_project, pattern="^project_edit_"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.task_feature.delete_project, pattern="^project_delete_"
+            self.require_channel_membership(self.reminder_feature.start_add_reminder), pattern="^reminder_add_continue$"
         ))
 
-        # Habit callbacks
+        # Task callbacks - protected
         self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.show_habits_menu, pattern="^habits_menu$"
+            self.require_channel_membership(self.task_feature.show_tasks_menu), pattern="^tasks_menu$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.start_add_habit, pattern="^habit_add$"
+            self.require_channel_membership(self.task_feature.list_tasks), pattern="^task_list$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.get_habit_frequency, pattern="^freq_"
+            self.require_channel_membership(self.task_feature.complete_task), pattern="^task_complete_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.list_habits, pattern="^habit_list$"
+            self.require_channel_membership(self.task_feature.show_projects), pattern="^task_projects$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.log_habit_progress, pattern="^habit_log$"
+            self.require_channel_membership(self.task_feature.delete_task), pattern="^task_delete_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.show_habits_overview_stats, pattern="^habit_stats$"
+            self.require_channel_membership(self.task_feature.view_project_tasks), pattern="^project_view_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.log_specific_habit, pattern="^log_habit_"
+            self.require_channel_membership(self.task_feature.edit_project), pattern="^project_edit_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.quick_log_habit, pattern="^quick_log_"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.show_habit_stats, pattern="^habit_stats_"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.edit_habit, pattern="^habit_edit_"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.log_specific_habit, pattern="^custom_log_"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.update_habit_log, pattern="^update_log_"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.quick_update_habit_log, pattern="^quick_update_"
-        ))
-        self.application.add_handler(CallbackQueryHandler(
-            self.habit_feature.custom_update_habit_log, pattern="^custom_update_"
+            self.require_channel_membership(self.task_feature.delete_project), pattern="^project_delete_"
         ))
 
-        # Note callbacks
+        # Habit callbacks - protected
         self.application.add_handler(CallbackQueryHandler(
-            self.note_feature.show_notes_menu, pattern="^notes_menu$"
+            self.require_channel_membership(self.habit_feature.show_habits_menu), pattern="^habits_menu$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.note_feature.list_notes, pattern="^note_list$"
+            self.require_channel_membership(self.habit_feature.start_add_habit), pattern="^habit_add$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.note_feature.view_note, pattern="^note_view_"
+            self.require_channel_membership(self.habit_feature.get_habit_frequency), pattern="^freq_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.note_feature.edit_note, pattern="^note_edit_"
+            self.require_channel_membership(self.habit_feature.list_habits), pattern="^habit_list$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.note_feature.share_note, pattern="^note_share_"
+            self.require_channel_membership(self.habit_feature.log_habit_progress), pattern="^habit_log$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.note_feature.pin_note, pattern="^note_pin_"
+            self.require_channel_membership(self.habit_feature.show_habits_overview_stats), pattern="^habit_stats$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.note_feature.show_pinned_notes, pattern="^note_pinned$"
+            self.require_channel_membership(self.habit_feature.log_specific_habit), pattern="^log_habit_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.note_feature.delete_note, pattern="^note_delete_"
-        ))
-
-        # AI Assistant callbacks
-        self.application.add_handler(CallbackQueryHandler(
-            self.ai_assistant.show_ai_menu, pattern="^ai_menu$"
+            self.require_channel_membership(self.habit_feature.quick_log_habit), pattern="^quick_log_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.ai_assistant.start_ai_chat, pattern="^ai_chat$"
+            self.require_channel_membership(self.habit_feature.show_habit_stats), pattern="^habit_stats_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.ai_assistant.suggest_tasks, pattern="^ai_suggest_tasks$"
+            self.require_channel_membership(self.habit_feature.edit_habit), pattern="^habit_edit_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.ai_assistant.suggest_habits, pattern="^ai_suggest_habits$"
+            self.require_channel_membership(self.habit_feature.log_specific_habit), pattern="^custom_log_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.ai_assistant.summarize_notes, pattern="^ai_summarize_notes$"
+            self.require_channel_membership(self.habit_feature.update_habit_log), pattern="^update_log_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.ai_assistant.get_productivity_insights, pattern="^ai_insights$"
+            self.require_channel_membership(self.habit_feature.quick_update_habit_log), pattern="^quick_update_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.ai_assistant.cancel_conversation, pattern="^ai_cancel$"
+            self.require_channel_membership(self.habit_feature.custom_update_habit_log), pattern="^custom_update_"
         ))
 
-        # Settings callbacks
+        # Note callbacks - protected
         self.application.add_handler(CallbackQueryHandler(
-            self.settings_feature.show_language_settings, pattern="^settings_language$"
+            self.require_channel_membership(self.note_feature.show_notes_menu), pattern="^notes_menu$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.settings_feature.set_language, pattern="^lang_"
+            self.require_channel_membership(self.note_feature.list_notes), pattern="^note_list$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.settings_feature.show_contact_info, pattern="^settings_contact$"
+            self.require_channel_membership(self.note_feature.view_note), pattern="^note_view_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.settings_feature.show_donate_info, pattern="^settings_donate$"
+            self.require_channel_membership(self.note_feature.edit_note), pattern="^note_edit_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.settings_feature.show_share_bot, pattern="^settings_share$"
+            self.require_channel_membership(self.note_feature.share_note), pattern="^note_share_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.settings_feature.show_notifications_settings, pattern="^settings_notifications$"
+            self.require_channel_membership(self.note_feature.pin_note), pattern="^note_pin_"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.settings_feature.toggle_notification_setting, pattern="^notif_"
+            self.require_channel_membership(self.note_feature.show_pinned_notes), pattern="^note_pinned$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.settings_feature.copy_bot_link, pattern="^copy_link_"
+            self.require_channel_membership(self.note_feature.delete_note), pattern="^note_delete_"
+        ))
+
+        # AI Assistant callbacks - protected
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.ai_assistant.show_ai_menu), pattern="^ai_menu$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.settings_feature.show_settings_menu, pattern="^back_to_settings$"
+            self.require_channel_membership(self.ai_assistant.start_ai_chat), pattern="^ai_chat$"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.ai_assistant.suggest_tasks), pattern="^ai_suggest_tasks$"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.ai_assistant.suggest_habits), pattern="^ai_suggest_habits$"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.ai_assistant.summarize_notes), pattern="^ai_summarize_notes$"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.ai_assistant.get_productivity_insights), pattern="^ai_insights$"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.ai_assistant.cancel_conversation), pattern="^ai_cancel$"
+        ))
+
+        # Settings callbacks - protected
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.settings_feature.show_language_settings), pattern="^settings_language$"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.settings_feature.set_language), pattern="^lang_"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.settings_feature.show_contact_info), pattern="^settings_contact$"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.settings_feature.show_donate_info), pattern="^settings_donate$"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.settings_feature.show_share_bot), pattern="^settings_share$"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.settings_feature.show_notifications_settings), pattern="^settings_notifications$"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.settings_feature.toggle_notification_setting), pattern="^notif_"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.settings_feature.copy_bot_link), pattern="^copy_link_"
+        ))
+        self.application.add_handler(CallbackQueryHandler(
+            self.require_channel_membership(self.settings_feature.show_settings_menu), pattern="^back_to_settings$"
         ))
         self.application.add_handler(CallbackQueryHandler(
             self.settings_feature.show_timezone_settings, pattern="^settings_timezone$"
@@ -702,12 +705,12 @@ class ProductivityBot:
         ))
         # Handle stars menu
         self.application.add_handler(CallbackQueryHandler(
-            self.settings_feature.show_stars_menu, pattern="^donate_stars_menu$"
+            self.require_channel_membership(self.settings_feature.show_stars_menu), pattern="^donate_stars_menu$"
         ))
 
         # Handle all star donation amounts
         self.application.add_handler(CallbackQueryHandler(
-            self.settings_feature.handle_donate_star, pattern="^donate_star_\\d+$"
+            self.require_channel_membership(self.settings_feature.handle_donate_star), pattern="^donate_star_\\d+$"
         ))
 
         # Handle successful payments
@@ -720,24 +723,24 @@ class ProductivityBot:
             self.settings_feature.handle_pre_checkout_query
         ))
 
-        # Statistics callbacks
+        # Statistics callbacks - protected
         self.application.add_handler(CallbackQueryHandler(
-            self.statistics_feature.show_overview_stats, pattern="^stats_overview$"
+            self.require_channel_membership(self.statistics_feature.show_overview_stats), pattern="^stats_overview$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.statistics_feature.show_task_stats, pattern="^stats_tasks$"
+            self.require_channel_membership(self.statistics_feature.show_task_stats), pattern="^stats_tasks$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.statistics_feature.show_habit_stats, pattern="^stats_habits$"
+            self.require_channel_membership(self.statistics_feature.show_habit_stats), pattern="^stats_habits$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.statistics_feature.show_reminder_stats, pattern="^stats_reminders$"
+            self.require_channel_membership(self.statistics_feature.show_reminder_stats), pattern="^stats_reminders$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.statistics_feature.show_note_stats, pattern="^stats_notes$"
+            self.require_channel_membership(self.statistics_feature.show_note_stats), pattern="^stats_notes$"
         ))
         self.application.add_handler(CallbackQueryHandler(
-            self.statistics_feature.show_weekly_report, pattern="^stats_weekly$"
+            self.require_channel_membership(self.statistics_feature.show_weekly_report), pattern="^stats_weekly$"
         ))
 
         # Help menu handler
@@ -759,8 +762,9 @@ class ProductivityBot:
 
     @with_user
     @error_handler
-    def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        return self.require_channel_membership(self._start_command_impl)(self, update, context)
+    async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle /start command"""
+        return await self.require_channel_membership(self._start_command_impl)(update, context)
 
     async def _start_command_impl(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /start command with enhanced welcome design"""
@@ -779,16 +783,16 @@ class ProductivityBot:
 
         # Enhanced welcome message with modern design
         welcome_message = (
-            f"🎉 *Welcome to Your Personal Productivity Assistant!*\n\n"
-            f"Hey **{first_name}**! 👋 I'm here to help you stay organized and productive.\n\n"
-            f"✨ **What I can do for you:**\n"
-            f"• ⏰ **Smart Reminders** - Never miss important tasks\n"
-            f"• 📋 **Task Management** - Organize your to-do lists\n"
-            f"• 🎯 **Habit Tracking** - Build positive routines\n"
-            f"• 📝 **Smart Notes** - Capture and organize ideas\n"
-            f"• 🤖 **AI Assistant** - Get intelligent suggestions\n"
-            f"• 📊 **Analytics** - Track your progress\n\n"
-            f"🕐 **Your Timezone:** {user_timezone}\n"
+            f"🎉 Welcome to Your Personal Productivity Assistant!\n\n"
+            f"Hey {first_name}! 👋 I'm here to help you stay organized and productive.\n\n"
+            f"✨ What I can do for you:\n"
+            f"• ⏰ Smart Reminders - Never miss important tasks\n"
+            f"• 📋 Task Management - Organize your to-do lists\n"
+            f"• 🎯 Habit Tracking - Build positive routines\n"
+            f"• 📝 Smart Notes - Capture and organize ideas\n"
+            f"• 🤖 AI Assistant - Get intelligent suggestions\n"
+            f"• 📊 Analytics - Track your progress\n\n"
+            f"🕐 Your Timezone: {user_timezone}\n"
             f"🚀 Ready to boost your productivity? Let's get started!{timezone_warning}"
         )
 
@@ -803,7 +807,7 @@ class ProductivityBot:
 
         await update.message.reply_text(
             welcome_message,
-            parse_mode='Markdown',
+            parse_mode=None,
             reply_markup=keyboard
         )
 
@@ -849,21 +853,21 @@ class ProductivityBot:
         if update.callback_query:
             await update.callback_query.edit_message_text(
                 help_message,
-                parse_mode='Markdown',
+                parse_mode=None,
                 reply_markup=Keyboards.main_menu()
             )
         else:
             await update.message.reply_text(
                 help_message,
-                parse_mode='Markdown',
+                parse_mode=None,
                 reply_markup=Keyboards.reply_main_menu()
             )
 
     @with_user
     @error_handler
-    def menu_command(self, update: Update, context):
+    async def menu_command(self, update: Update, context):
         """Handle /menu command"""
-        return self.require_channel_membership(self._menu_command_impl)(self, update, context)
+        return await self.require_channel_membership(self._menu_command_impl)(update, context)
 
     async def _menu_command_impl(self, update: Update, context):
         """Implementation of menu command"""
@@ -879,32 +883,32 @@ class ProductivityBot:
         # Add timezone indicator with better formatting
         timezone_indicator = ""
         if user_timezone != 'UTC':
-            timezone_indicator = f"\n🕐 **Timezone:** {user_timezone}"
+            timezone_indicator = f"\n🕐 Timezone: {user_timezone}"
         else:
-            timezone_indicator = "\n⚠️ **Timezone:** UTC (Consider setting your local timezone)"
+            timezone_indicator = "\n⚠️ Timezone: UTC (Consider setting your local timezone)"
 
         # Enhanced welcome message with modern design
         menu_message = (
-            f"🎉 *Welcome to Your Productivity Hub!*\n\n"
-            f"Hey **{first_name}**! 👋 Ready to boost your productivity today?\n\n"
-            f"🚀 **Quick Actions:**\n"
+            f"🎉 Welcome to Your Productivity Hub!\n\n"
+            f"Hey {first_name}! 👋 Ready to boost your productivity today?\n\n"
+            f"🚀 Quick Actions:\n"
             f"• Create reminders, tasks, and habits\n"
             f"• Chat with AI for smart suggestions\n"
             f"• Track your progress and insights\n\n"
-            f"💡 **Pro Tip:** Try asking the AI Assistant to create items using natural language!\n"
+            f"💡 Pro Tip: Try asking the AI Assistant to create items using natural language!\n"
             f"{timezone_indicator}"
         )
 
         if update.callback_query:
             await update.callback_query.edit_message_text(
                 menu_message,
-                parse_mode='Markdown',
+                parse_mode=None,
                 reply_markup=Keyboards.main_menu()
             )
         else:
             await update.message.reply_text(
                 menu_message,
-                parse_mode='Markdown',
+                parse_mode=None,
                 reply_markup=Keyboards.reply_main_menu()
             )
 
@@ -928,8 +932,8 @@ class ProductivityBot:
 
     # ==========Channel Membership Feature =============
     def require_channel_membership(self, func):
-        """Decorator to check channel membership before executing commands."""
-        async def wrapper(self, update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        """Decorator to check channel membership before executing handlers"""
+        async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
             user = None
             if getattr(update, "callback_query", None) and getattr(update.callback_query, "from_user", None):
                 user = update.callback_query.from_user
@@ -939,21 +943,44 @@ class ProductivityBot:
                 user = update.effective_user
 
             if not user:
-                self.logger.error("❌ No user found in update")
                 return
 
-            user_id = user.id
+            # Define commands/patterns that should SKIP membership check
+            exempt_patterns = ['/start', '/help', '/menu', '/cancel', 'check_membership', 'settings_timezone', 'back_to_main', 'tz_', 'skip_timezone']
 
+            # Check if this update should be exempt from membership check
+            should_skip = False
+
+            # Check message text for exempt commands
+            if hasattr(update, 'message') and update.message and update.message.text:
+                for pattern in exempt_patterns:
+                    if update.message.text.startswith(pattern):
+                        should_skip = True
+                        break
+
+            # Check callback data for exempt patterns
+            if hasattr(update, 'callback_query') and update.callback_query and update.callback_query.data:
+                for pattern in exempt_patterns:
+                    if pattern in update.callback_query.data:
+                        should_skip = True
+                        break
+
+            # If should skip, don't check membership
+            if should_skip:
+                return await func(update, context, *args, **kwargs)
+
+            # Check channel membership
+            user_id = user.id
             try:
                 is_member = await self.check_channel_membership(user_id, context)
             except Exception as e:
-                self.logger.exception("Error checking channel membership for user %s", user_id)
+                self.logger.exception(f"Error checking channel membership for user {user_id}")
                 return await self.show_join_channel_prompt(update, context)
 
             if not is_member:
                 return await self.show_join_channel_prompt(update, context)
 
-            return await func(self, update, context, *args, **kwargs)
+            return await func(update, context, *args, **kwargs)
 
         return wrapper
 
@@ -977,7 +1004,7 @@ class ProductivityBot:
         channel_url = settings.channel_url or f"https://t.me/{channel_display.replace('@', '')}"
 
         text = (
-            "🔒 **Channel Membership Required**\n\n"
+            "🔒 Channel Membership Required\n\n"
             "To use this bot, you must first join our channel:\n"
             f"📢 {channel_display}\n\n"
             "After joining, tap 'Check Membership' below to continue."
@@ -990,9 +1017,9 @@ class ProductivityBot:
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         if getattr(update, "message", None):
-            await update.message.reply_text(text, parse_mode='Markdown', reply_markup=reply_markup)
+            await update.message.reply_text(text, parse_mode=None, reply_markup=reply_markup)
         elif getattr(update, "callback_query", None):
-            await update.callback_query.edit_message_text(text, parse_mode='Markdown', reply_markup=reply_markup)
+            await update.callback_query.edit_message_text(text, parse_mode=None, reply_markup=reply_markup)
         else:
             self.logger.warning("⚠️ No message or callback_query in update")
 
@@ -1014,62 +1041,7 @@ class ProductivityBot:
             return self.CHOOSING_ACTION
     # ==========================
 
-    # Protected wrapper methods for main features
-    async def protected_reminders_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Protected wrapper for reminders menu"""
-        user_id = update.effective_user.id if update.effective_user else None
-        if not user_id or not await self.check_channel_membership(user_id, context):
-            return await self.show_join_channel_prompt(update, context)
-        return await self.reminder_feature.show_reminders_menu(update, context)
 
-    async def protected_tasks_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Protected wrapper for tasks menu"""
-        user_id = update.effective_user.id if update.effective_user else None
-        if not user_id or not await self.check_channel_membership(user_id, context):
-            return await self.show_join_channel_prompt(update, context)
-        return await self.task_feature.show_tasks_menu(update, context)
-
-    async def protected_habits_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Protected wrapper for habits menu"""
-        user_id = update.effective_user.id if update.effective_user else None
-        if not user_id or not await self.check_channel_membership(user_id, context):
-            return await self.show_join_channel_prompt(update, context)
-        return await self.habit_feature.show_habits_menu(update, context)
-
-    async def protected_notes_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Protected wrapper for notes menu"""
-        user_id = update.effective_user.id if update.effective_user else None
-        if not user_id or not await self.check_channel_membership(user_id, context):
-            return await self.show_join_channel_prompt(update, context)
-        return await self.note_feature.show_notes_menu(update, context)
-
-    async def protected_statistics_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Protected wrapper for statistics menu"""
-        user_id = update.effective_user.id if update.effective_user else None
-        if not user_id or not await self.check_channel_membership(user_id, context):
-            return await self.show_join_channel_prompt(update, context)
-        return await self.statistics_feature.show_statistics_menu(update, context)
-
-    async def protected_settings_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Protected wrapper for settings menu"""
-        user_id = update.effective_user.id if update.effective_user else None
-        if not user_id or not await self.check_channel_membership(user_id, context):
-            return await self.show_join_channel_prompt(update, context)
-        return await self.settings_feature.show_settings_menu(update, context)
-
-    async def protected_ai_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Protected wrapper for AI assistant menu"""
-        user_id = update.effective_user.id if update.effective_user else None
-        if not user_id or not await self.check_channel_membership(user_id, context):
-            return await self.show_join_channel_prompt(update, context)
-        return await self.ai_assistant.show_ai_menu(update, context)
-
-    async def protected_donate_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Protected wrapper for donate menu"""
-        user_id = update.effective_user.id if update.effective_user else None
-        if not user_id or not await self.check_channel_membership(user_id, context):
-            return await self.show_join_channel_prompt(update, context)
-        return await self.settings_feature.show_donate_info(update, context)
 
     def run(self):
         """Run the bot"""
